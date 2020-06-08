@@ -66,8 +66,8 @@ $(patsubst %.a, %.o, $(STATIC_LIB_TARGET)): $(LIB_SRC) | $(BUILD_DIR)
 %.a: %.o
 	ar rcs $@ $^
 
-$(DEPS):
-	cp $(patsubst $(BUILD_DIR)/%, $(LIBS_DIR)/%, $@) $@
+$(BUILD_DIR)/%.dylib: $(LIBS_DIR)/%.dylib
+	cp $^ $@
 
 $(BUILD_DIR):
 	mkdir -p $@
