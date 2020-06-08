@@ -13,6 +13,7 @@ endif
 LIBS_DIR            := lib
 HEADERS_DIR         := include
 BUILD_DIR           := build
+EXEC_EXT            :=
 
 ifeq ($(PLATFORM),Darwin)
 	CC              := clang
@@ -26,6 +27,7 @@ else ifeq ($(PLATFORM),Windows)
 	CC              :=
 	LIBS_DIR        := $(LIBS_DIR)/windows
 	DYNAMIC_EXT     := dll
+	EXEC_EXT        := .exe
 endif
 
 FLAGS               := -arch $(ARCH) -L$(LIBS_DIR) -L$(BUILD_DIR) -I$(HEADERS_DIR)
@@ -37,11 +39,11 @@ LIB_FLAGS           := -shared -lcyusbserial.0.1 -Wl,-install_name,@loader_path/
 STATIC_LIB_TARGET   := $(BUILD_DIR)/libtvcontrol.a
 STATIC_LIB_FLAGS    := $(LIBS_DIR)/libcyusbserial.a
 
-TOOL_TARGET         := $(BUILD_DIR)/tvcontrolutil
+TOOL_TARGET         := $(BUILD_DIR)/tvcontrolutil$(EXEC_EXT)
 TOOL_SRC            := tvcontrolutil.c
 TOOL_FLAGS          := -ltvcontrol
 
-STATIC_TOOL_TARGET  := $(BUILD_DIR)/tvcontrolutil_static
+STATIC_TOOL_TARGET  := $(BUILD_DIR)/tvcontrolutil_static$(EXEC_EXT)
 STATIC_TOOL_FLAGS   := $(STATIC_LIB_TARGET)
 
 DEPS                := $(patsubst $(LIBS_DIR)/%, $(BUILD_DIR)/%, $(wildcard $(LIBS_DIR)/*.$(DYNAMIC_EXT)))
