@@ -1,13 +1,13 @@
 ifndef $(PLATFORM)
-	ifeq ($(OS),Windows_NT)
-			PLATFORM    = Windows
-	else
-			PLATFORM    := $(shell uname -s)
-	endif
+    ifeq ($(OS),Windows_NT)
+            PLATFORM    = Windows
+    else
+            PLATFORM    := $(shell uname -s)
+    endif
 endif
 
 ifndef $(ARCH)
-	ARCH                := x86_64
+    ARCH                := x86_64
 endif
 
 LIB_NAME                := libtvcontrol
@@ -19,21 +19,21 @@ BUILD_DIR               := build
 EXEC_EXT                :=
 
 ifeq ($(PLATFORM),Darwin)
-	CC                  := xcrun clang
-	LIBS_DIR            := $(LIBS_DIR)/darwin
-	DYNAMIC_EXT         := dylib
+    CC                  := xcrun clang
+    LIBS_DIR            := $(LIBS_DIR)/darwin
+    DYNAMIC_EXT         := dylib
 else ifeq ($(PLATFORM),Linux)
-	CC                  := clang
-	LIBS_DIR            := $(LIBS_DIR)/linux/$(ARCH)
-	DYNAMIC_EXT         := so
+    CC                  := clang
+    LIBS_DIR            := $(LIBS_DIR)/linux/$(ARCH)
+    DYNAMIC_EXT         := so
 else ifeq ($(PLATFORM),Windows)
-	CC                  :=
-	LIBS_DIR            := $(LIBS_DIR)/windows
-	DYNAMIC_EXT         := dll
-	EXEC_EXT            := .exe
+    CC                  :=
+    LIBS_DIR            := $(LIBS_DIR)/windows
+    DYNAMIC_EXT         := dll
+    EXEC_EXT            := .exe
 endif
 
-FLAGS                   := -arch $(ARCH) -L$(LIBS_DIR) -L$(BUILD_DIR) -I$(HEADERS_DIR)
+FLAGS                   := -O3 -arch $(ARCH) -L$(LIBS_DIR) -L$(BUILD_DIR) -I$(HEADERS_DIR)
 
 STATIC_LIB_TARGET       := $(BUILD_DIR)/$(LIB_NAME).a
 STATIC_LIB_OBJ          := $(STATIC_LIB_TARGET:.a=.o)
@@ -50,9 +50,9 @@ TOOL_SRC                := tvcontrolutil.c
 TOOL_FLAGS              := -ltvcontrol
 
 ifeq ($(PLATFORM),Darwin)
-	FRAMEWORKS          := -framework CoreFoundation -framework IOKit
-	SHARED_LIB_FLAGS    += $(FRAMEWORKS)
-	STATIC_TOOL_FLAGS   += $(FRAMEWORKS)
+    FRAMEWORKS          := -framework CoreFoundation -framework IOKit
+    SHARED_LIB_FLAGS    += $(FRAMEWORKS)
+    STATIC_TOOL_FLAGS   += $(FRAMEWORKS)
 endif
 
 .PHONEY: all clean
