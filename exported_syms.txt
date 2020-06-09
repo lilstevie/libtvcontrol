@@ -1,0 +1,3 @@
+_tvctrl_find_device
+_tvctrl_release_device
+
