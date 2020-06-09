@@ -36,8 +36,8 @@
 #include <unistd.h>
 #endif
 
-#include "libtvcontrol.h"
 #include "CyUSBSerial.h"
+#include "libtvcontrol.h"
 
 int numDevices = 0;
 unsigned char *deviceNumber = NULL;

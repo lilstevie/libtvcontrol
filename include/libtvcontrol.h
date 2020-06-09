@@ -31,12 +31,36 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include "CyUSBSerial.h"
 
 #define MFG_NAME "Gizmite Designs"
 #define GIZMITE_ADVANCED_BOARD "Apple TV Serial/DFU Control"
 
 #define ADVANCED_MODE_GPIO 1
+
+/************************************************************************/
+// Copied from CyUSBSerial.h to allow independability from including it.
+#ifndef _INCLUDED_CYUSBSERIAL_H_
+
+#ifndef UINT32
+    typedef unsigned int UINT32;
+#endif
+#ifndef UINT8
+    typedef unsigned char UINT8;
+#endif
+#ifndef UINT16
+    typedef unsigned short UINT16;
+#endif
+
+typedef struct _CY_FIRMWARE_VERSION {
+    UINT8 majorVersion;                 /*Major version of the Firmware*/
+    UINT8 minorVersion;                 /*Minor version of the Firmware*/
+    UINT16 patchNumber;                 /*Patch Number of the Firmware*/  
+    UINT32 buildNumber;                 /*Build Number of the Firmware*/
+} CY_FIRMWARE_VERSION, *PCY_FIRMWARE_VERSION;
+
+typedef void* CY_HANDLE;
+#endif
+/************************************************************************/
 
 typedef enum {
     E_OK = 0,
