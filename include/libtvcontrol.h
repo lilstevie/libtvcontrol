@@ -25,7 +25,8 @@ typedef enum {
     E_GPIO_FAIL,
     E_DFU_TIMEOUT,
     E_NOT_SUPPORTED,
-    E_NO_DEVICE
+    E_NO_DEVICE,
+    E_INVALID_ARGUMENTS
 } tvcErr_t;
 
 typedef enum {
@@ -45,10 +46,9 @@ typedef struct {
     uint8_t resetGPIO;
     setEnterDFU setEnterDFU;
     rebootDevice rebootDev;
-}tvcontrol_t;
+} tvcontrol_t;
 
-extern tvcErr_t tvctrl_find_device(tvcontrol_t *tvcDevice);
-extern tvcErr_t tvctrl_release_device(tvcontrol_t *tvcDevice);
+extern tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice);
+extern tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice);
 
 #endif /* libtvcontrol_h */
-

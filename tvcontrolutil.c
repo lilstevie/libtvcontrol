@@ -11,34 +11,30 @@
 
 int main(){
     
-    tvcontrol_t *device;
+    tvcontrol_t *device = NULL;
     tvcErr_t err;
-    device = (tvcontrol_t*)malloc(sizeof(tvcontrol_t));
     
-    err = tvctrl_find_device(device);
-    if(err != E_OK){
-        printf("library error\n");
+    if (E_OK != (err = tvctrl_find_device(&device)) || device == NULL) {
+        if (E_NO_DEVICE == err)
+            printf("No device found\n");
+        else
+            printf("library error\n");
+
         return err;
     }
+
+    printf("Found Advanced Breakout\n");
+    printf("Cyprus FWVersion: %d.%d.%d.%d\n", device->fwVers.majorVersion, device->fwVers.minorVersion, device->fwVers.patchNumber, device->fwVers.buildNumber);
+    printf("Current Device Mode: %s\n", device->mode == NORMAL_MODE ? "Normal Mode" : "DFU Boot");
     
-    if(device->isDevDetected){
-        printf("Found Advanced Breakout\n");
-        printf("Cyprus FWVersion: %d.%d.%d.%d\n", device->fwVers.majorVersion, device->fwVers.minorVersion, device->fwVers.patchNumber, device->fwVers.buildNumber);
-        printf("Current Device Mode: %s\n", device->mode == NORMAL_MODE ? "Normal Mode" : "DFU Boot");
-        
-        err = device->setEnterDFU((void*)device);
-        if(err != E_OK){
-            printf("Failed to change USB mode\n");
-            tvctrl_release_device(device);
-            return err;
-        }
-        
-        tvctrl_release_device(device);
-        
-    }else{
-        printf("No device found\n");
+    err = device->setEnterDFU((void*)device);
+    tvctrl_release_device(&device);
+    
+    if (err != E_OK) {
+        printf("Failed to change USB mode\n");
+        return err;
     }
-    
+
     return 0;
     
 }
