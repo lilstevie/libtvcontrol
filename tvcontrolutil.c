@@ -15,7 +15,7 @@ int main(){
     tvcErr_t err;
     device = (tvcontrol_t*)malloc(sizeof(tvcontrol_t));
     
-    err = init(device);
+    err = tvctrl_find_device(device);
     if(err != E_OK){
         printf("library error\n");
         return err;
@@ -29,11 +29,11 @@ int main(){
         err = device->setEnterDFU((void*)device);
         if(err != E_OK){
             printf("Failed to change USB mode\n");
-            releaseTvLib(device);
+            tvctrl_release_device(device);
             return err;
         }
         
-        releaseTvLib(device);
+        tvctrl_release_device(device);
         
     }else{
         printf("No device found\n");

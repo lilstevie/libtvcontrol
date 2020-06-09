@@ -81,7 +81,7 @@ tvcErr_t rebootDevice_Advanced(tvcontrol_t *tvcDevice){
     return E_NOT_SUPPORTED;
 }
 
-tvcErr_t init(tvcontrol_t *tvcDevice) {
+tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
     
     CY_RETURN_STATUS cyStatus;
     CY_DEVICE_INFO devInfo;
@@ -130,7 +130,7 @@ tvcErr_t init(tvcontrol_t *tvcDevice) {
     return E_OK;
 }
 
-tvcErr_t releaseTvLib(tvcontrol_t *tvcDevice){
+tvcErr_t tvctrl_release_device(tvcontrol_t *tvcDevice){
     
     CY_RETURN_STATUS cyStatus;
     

@@ -47,8 +47,8 @@ typedef struct {
     rebootDevice rebootDev;
 }tvcontrol_t;
 
-tvcErr_t init(tvcontrol_t *tvcDevice);
-tvcErr_t releaseTvLib(tvcontrol_t *tvcDevice);
+extern tvcErr_t tvctrl_find_device(tvcontrol_t *tvcDevice);
+extern tvcErr_t tvctrl_release_device(tvcontrol_t *tvcDevice);
 
 #endif /* libtvcontrol_h */
 
