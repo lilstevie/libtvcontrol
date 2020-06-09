@@ -29,6 +29,7 @@
 #ifndef libtvcontrol_h
 #define libtvcontrol_h
 
+#include <stdbool.h>
 #include <stdio.h>
 #include "CyUSBSerial.h"
 
