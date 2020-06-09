@@ -57,32 +57,35 @@ void getFWVer(tvcontrol_t *tvcDevice){
     
 }
 
-tvcErr_t setEnterDFU_Advanced(tvcontrol_t *tvcDevice){
+tvcErr_t setEnterDFUMode(tvcontrol_t *tvcDevice, tvcUSBMode_t mode) {
 
     CY_RETURN_STATUS cyStatus;
     
     if(!tvcDevice->isDevDetected)
         return E_NO_DEVICE;
     
-    cyStatus = CySetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, (uint8_t)tvcDevice->mode);
+    cyStatus = CySetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, (uint8_t)mode);
     if(cyStatus != CY_SUCCESS)
         return E_GPIO_FAIL;
     
     cyStatus = CyGetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, (uint8_t*)&tvcDevice->mode);
-    if(cyStatus != CY_SUCCESS)
+    if(cyStatus != CY_SUCCESS || mode != tvcDevice->mode)
         return E_GPIO_FAIL;
     
     return E_OK;
-    
 }
 
-tvcErr_t rebootDevice_Advanced(tvcontrol_t *tvcDevice){
+tvcErr_t toggleEnterDFUMode(tvcontrol_t *tvcDevice) {
+    tvcUSBMode_t mode = (tvcDevice->mode == NORMAL_MODE) ? DFU_BOOT : NORMAL_MODE;
+    return setEnterDFUMode(tvcDevice, mode);
+}
+
+tvcErr_t rebootDevice(tvcontrol_t *tvcDevice){
     
     return E_NOT_SUPPORTED;
 }
 
-tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice)
-{
+tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
     CY_DEVICE_INFO devInfo;
     CY_HANDLE dhandle;
     tvcUSBMode_t currentMode;
@@ -122,8 +125,9 @@ tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice)
             (*tvcDevice)->handle = dhandle;
             (*tvcDevice)->mode = currentMode;
             (*tvcDevice)->modeGPIO = 1;
-            (*tvcDevice)->setEnterDFU = (setEnterDFU)&setEnterDFU_Advanced;
-            (*tvcDevice)->rebootDev = (rebootDevice)&rebootDevice_Advanced;
+            (*tvcDevice)->setEnterDFUMode = (setEnterDFUMode_prototype)&setEnterDFUMode;
+            (*tvcDevice)->toggleEnterDFUMode = (toggleEnterDFUMode_prototype)&toggleEnterDFUMode;
+            (*tvcDevice)->rebootDev = (rebootDevice_prototype)&rebootDevice;
             getFWVer(*tvcDevice);
 
             return E_OK;

@@ -34,19 +34,24 @@ typedef enum {
     DFU_BOOT
 } tvcUSBMode_t;
 
-typedef tvcErr_t (*setEnterDFU)(void*);
-typedef tvcErr_t (*rebootDevice)(void*);
+struct tvcontrol;
+typedef tvcErr_t (*setEnterDFUMode_prototype)(struct tvcontrol *, tvcUSBMode_t);
+typedef tvcErr_t (*toggleEnterDFUMode_prototype)(struct tvcontrol *);
+typedef tvcErr_t (*rebootDevice_prototype)(struct tvcontrol *);
 
-typedef struct {
+struct tvcontrol {
     bool isDevDetected;
     CY_HANDLE handle;
     CY_FIRMWARE_VERSION fwVers;
     tvcUSBMode_t mode;
     uint8_t modeGPIO;
     uint8_t resetGPIO;
-    setEnterDFU setEnterDFU;
-    rebootDevice rebootDev;
-} tvcontrol_t;
+    setEnterDFUMode_prototype setEnterDFUMode;
+    toggleEnterDFUMode_prototype toggleEnterDFUMode;
+    rebootDevice_prototype rebootDev;
+};
+
+typedef struct tvcontrol tvcontrol_t;
 
 extern tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice);
 extern tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice);

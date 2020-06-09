@@ -27,7 +27,7 @@ int main(){
     printf("Cyprus FWVersion: %d.%d.%d.%d\n", device->fwVers.majorVersion, device->fwVers.minorVersion, device->fwVers.patchNumber, device->fwVers.buildNumber);
     printf("Current Device Mode: %s\n", device->mode == NORMAL_MODE ? "Normal Mode" : "DFU Boot");
     
-    err = device->setEnterDFU((void*)device);
+    err = device->toggleEnterDFUMode(device);
     tvctrl_release_device(&device);
     
     if (err != E_OK) {
@@ -35,6 +35,6 @@ int main(){
         return err;
     }
 
-    return 0;
-    
+    printf("New Device Mode: %s\n", device->mode == NORMAL_MODE ? "Normal Mode" : "DFU Boot");
+    return 0;    
 }
