@@ -22,6 +22,7 @@ ifeq ($(PLATFORM),Darwin)
     CC                  := xcrun clang
     LIBS_DIR            := $(LIBS_DIR)/darwin
     DYNAMIC_EXT         := dylib
+    SHARED_LIB_FLAGS    := -install_name,@loader_path/$(shell basename $(SHARED_LIB_TARGET))
 else ifeq ($(PLATFORM),Linux)
     CC                  := clang
     LIBS_DIR            := $(LIBS_DIR)/linux/$(ARCH)
@@ -40,7 +41,7 @@ STATIC_LIB_OBJ          := $(STATIC_LIB_TARGET:.a=.o)
 STATIC_LIB_SRC          := libtvcontrol.c
 
 SHARED_LIB_TARGET       := $(BUILD_DIR)/$(LIB_NAME).$(DYNAMIC_EXT)
-SHARED_LIB_FLAGS        := -shared -Wl,-install_name,@loader_path/$(shell basename $(SHARED_LIB_TARGET))
+SHARED_LIB_FLAGS        := -shared -Wl
 
 STATIC_TOOL_TARGET      := $(BUILD_DIR)/$(TOOL_NAME)_static$(EXEC_EXT)
 STATIC_TOOL_FLAGS       :=
@@ -73,7 +74,7 @@ $(STATIC_LIB_OBJ): $(STATIC_LIB_SRC) | $(BUILD_DIR)
 $(STATIC_LIB_TARGET): $(LIBS_DIR)/libcyusbserial.a | $(STATIC_LIB_OBJ)
 	cp $< $@_
 	ar -rcs $@_ $(STATIC_LIB_OBJ)
-	mv $@{_,}
+	mv $@_ $@
 	rm -rf $(STATIC_LIB_OBJ)
 
 $(BUILD_DIR):

@@ -31,6 +31,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
 #include "CyUSBSerial.h"
 
 #define MFG_NAME "Gizmite Designs"
