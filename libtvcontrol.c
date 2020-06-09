@@ -78,87 +78,99 @@ void getFWVer(tvcontrol_t *tvcDevice){
     
 }
 
-tvcErr_t setEnterDFU_Advanced(tvcontrol_t *tvcDevice){
+tvcErr_t setUSBMode(tvcontrol_t *tvcDevice, tvcUSBMode_t mode) {
 
     CY_RETURN_STATUS cyStatus;
+    uint8_t val;
     
-    if(!tvcDevice->isDevDetected)
+    if(E_NO_DEVICE == tvctrl_find_device(&tvcDevice))
         return E_NO_DEVICE;
     
-    cyStatus = CySetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, (uint8_t)tvcDevice->mode);
+    cyStatus = CySetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, (uint8_t)mode);
     if(cyStatus != CY_SUCCESS)
         return E_GPIO_FAIL;
     
-    cyStatus = CyGetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, (uint8_t*)&tvcDevice->mode);
-    if(cyStatus != CY_SUCCESS)
+    cyStatus = CyGetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, &val);
+    tvcDevice->mode = val;
+    if(cyStatus != CY_SUCCESS || mode != tvcDevice->mode)
         return E_GPIO_FAIL;
     
     return E_OK;
-    
 }
 
-tvcErr_t rebootDevice_Advanced(tvcontrol_t *tvcDevice){
+tvcErr_t toggleUSBMode(tvcontrol_t *tvcDevice) {
+    tvcUSBMode_t mode = (tvcDevice->mode == NORMAL_MODE) ? DFU_BOOT : NORMAL_MODE;
+    return setUSBMode(tvcDevice, mode);
+}
+
+tvcErr_t rebootDevice(tvcontrol_t *tvcDevice){
     
     return E_NOT_SUPPORTED;
 }
 
-tvcErr_t init(tvcontrol_t *tvcDevice) {
-    
-    CY_RETURN_STATUS cyStatus;
+tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
     CY_DEVICE_INFO devInfo;
     CY_HANDLE dhandle;
-    
+    uint8_t currentMode;
     int usbDevices = 0;
-    
-    tvcDevice->isDevDetected = false;
-    cyStatus = CyLibraryInit();
-    if(cyStatus != CY_SUCCESS){
+
+    if (*tvcDevice != NULL)
+        return E_INVALID_ARGUMENTS;
+    else if (CY_SUCCESS != CyLibraryInit())
         return E_CYLIB_ERR;
-    }
-    
-    cyStatus = CyGetListofDevices((UINT8 *)&usbDevices);
-    if(cyStatus != CY_SUCCESS)
+    else if (CY_SUCCESS != CyGetListofDevices((UINT8 *)&usbDevices))
         return E_USB_ERR;
-    
-    for(int devNum = 0; devNum < usbDevices; devNum++){
-        cyStatus = CyGetDeviceInfo(devNum, &devInfo);
-        if(cyStatus == CY_SUCCESS){
-            if(strncmp((const char*)devInfo.manufacturerName, MFG_NAME, sizeof(MFG_NAME)) == 0){
-                if(isValidDevice(devNum)){
-                    for(int ifaceNum = 0; ifaceNum < devInfo.numInterfaces; ifaceNum++){
-                        if(devInfo.deviceClass[ifaceNum] == CY_CLASS_VENDOR){
-                            cyStatus = CyOpen(devNum, ifaceNum, &dhandle);
-                            if(cyStatus == CY_SUCCESS){
-                                tvcDevice->handle = dhandle;
-                                tvcDevice->isDevDetected = true;
-                                getFWVer(tvcDevice);
-                                if(strncmp((const char*)devInfo.productName, GIZMITE_ADVANCED_BOARD,    sizeof(GIZMITE_ADVANCED_BOARD)) == 0){
-                                    tvcDevice->modeGPIO = 1;
-                                    cyStatus = CyGetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, (uint8_t*)&tvcDevice->mode);
-                                    if(cyStatus != CY_SUCCESS)
-                                        return E_GPIO_FAIL;
-                                    tvcDevice->setEnterDFU = &setEnterDFU_Advanced;
-                                    tvcDevice->rebootDev = &rebootDevice_Advanced;
-                                }
-                            }
-                        }
-                    }
-                }
+
+    for (int devNum = 0; devNum < usbDevices; devNum++) {
+        if (CY_SUCCESS != CyGetDeviceInfo(devNum, &devInfo))
+            continue;
+        else if (strncmp((const char *)devInfo.manufacturerName, MFG_NAME, sizeof(MFG_NAME)) != 0)
+            continue;
+        else if (false == isValidDevice(devNum))
+            continue;
+
+        for (int ifaceNum = 0; ifaceNum < devInfo.numInterfaces; ifaceNum++) {
+            if (devInfo.deviceClass[ifaceNum] != CY_CLASS_VENDOR)
+                continue;
+            else if (CY_SUCCESS != CyOpen(devNum, ifaceNum, &dhandle))
+                continue;
+            else if (strncmp((const char *)devInfo.productName, GIZMITE_ADVANCED_BOARD, sizeof(GIZMITE_ADVANCED_BOARD)) != 0) {
+                CyClose(dhandle);
+                continue;
+            } else if (CY_SUCCESS != CyGetGpioValue(dhandle, 1, &currentMode)) {
+                CyClose(dhandle);
+                return E_GPIO_FAIL;
+            } else if ((*tvcDevice = (tvcontrol_t *)calloc(1, sizeof(tvcontrol_t))) == NULL) {
+                CyClose(dhandle);
+                return E_MALLOC_FAIL;
             }
+            
+            (*tvcDevice)->handle = dhandle;
+            (*tvcDevice)->mode = currentMode;
+            (*tvcDevice)->modeGPIO = 1;
+            (*tvcDevice)->setUSBMode = (setUSBMode_prototype)&setUSBMode;
+            (*tvcDevice)->toggleUSBMode = (toggleUSBMode_prototype)&toggleUSBMode;
+            (*tvcDevice)->rebootDev = (rebootDevice_prototype)&rebootDevice;
+            getFWVer(*tvcDevice);
+
+            return E_OK;
         }
     }
-    
-    return E_OK;
+
+    return E_NO_DEVICE;
 }
 
-tvcErr_t releaseTvLib(tvcontrol_t *tvcDevice){
+tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice) {
     
-    CY_RETURN_STATUS cyStatus;
+    CY_HANDLE handle;
     
-    cyStatus = CyClose(tvcDevice->handle);
-    if(cyStatus != CY_SUCCESS)
-        return E_CYLIB_ERR;
+    if (*tvcDevice == NULL)
+        return E_INVALID_ARGUMENTS;
     
-    return E_OK;
+    handle = (*tvcDevice)->handle;
+    free(*tvcDevice);
+    *tvcDevice = NULL;
+
+    return (CY_SUCCESS != CyClose(handle)) ? E_CYLIB_ERR : E_OK;
 }
 

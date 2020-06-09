@@ -30,7 +30,6 @@
 #define libtvcontrol_h
 
 #include <stdio.h>
-#include <stdbool.h>
 #include "CyUSBSerial.h"
 
 #define MFG_NAME "Gizmite Designs"
@@ -46,7 +45,8 @@ typedef enum {
     E_GPIO_FAIL,
     E_DFU_TIMEOUT,
     E_NOT_SUPPORTED,
-    E_NO_DEVICE
+    E_NO_DEVICE,
+    E_INVALID_ARGUMENTS
 } tvcErr_t;
 
 typedef enum {
@@ -54,22 +54,25 @@ typedef enum {
     DFU_BOOT
 } tvcUSBMode_t;
 
-typedef tvcErr_t (*setEnterDFU)(void*);
-typedef tvcErr_t (*rebootDevice)(void*);
+struct tvcontrol;
+typedef tvcErr_t (*setUSBMode_prototype)(struct tvcontrol *, tvcUSBMode_t);
+typedef tvcErr_t (*toggleUSBMode_prototype)(struct tvcontrol *);
+typedef tvcErr_t (*rebootDevice_prototype)(struct tvcontrol *);
 
-typedef struct {
-    bool isDevDetected;
+struct tvcontrol {
     CY_HANDLE handle;
     CY_FIRMWARE_VERSION fwVers;
     tvcUSBMode_t mode;
     uint8_t modeGPIO;
     uint8_t resetGPIO;
-    setEnterDFU setEnterDFU;
-    rebootDevice rebootDev;
-}tvcontrol_t;
+    setUSBMode_prototype setUSBMode;
+    toggleUSBMode_prototype toggleUSBMode;
+    rebootDevice_prototype rebootDev;
+};
 
-tvcErr_t init(tvcontrol_t *tvcDevice);
-tvcErr_t releaseTvLib(tvcontrol_t *tvcDevice);
+typedef struct tvcontrol tvcontrol_t;
+
+extern tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice);
+extern tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice);
 
 #endif /* libtvcontrol_h */
-
