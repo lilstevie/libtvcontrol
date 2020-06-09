@@ -117,10 +117,11 @@ tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
             } else if (CY_SUCCESS != CyGetGpioValue(dhandle, 1, (uint8_t *)&currentMode)) {
                 CyClose(dhandle);
                 return E_GPIO_FAIL;
-            } else if ((*tvcDevice = (tvcontrol_t *)calloc(1, sizeof(tvcontrol_t))) == NULL)
+            } else if ((*tvcDevice = (tvcontrol_t *)calloc(1, sizeof(tvcontrol_t))) == NULL) {
                 CyClose(dhandle);
                 return E_MALLOC_FAIL;
-
+            }
+            
             (*tvcDevice)->isDevDetected = true;
             (*tvcDevice)->handle = dhandle;
             (*tvcDevice)->mode = currentMode;
