@@ -28,7 +28,6 @@ int main(){
     printf("Current Device Mode: %s\n", device->mode == NORMAL_MODE ? "Normal Mode" : "DFU Boot");
     
     err = device->toggleEnterDFUMode(device);
-    tvctrl_release_device(&device);
     
     if (err != E_OK) {
         printf("Failed to change USB mode\n");
@@ -36,5 +35,7 @@ int main(){
     }
 
     printf("New Device Mode: %s\n", device->mode == NORMAL_MODE ? "Normal Mode" : "DFU Boot");
+    tvctrl_release_device(&device);
+    
     return 0;    
 }
