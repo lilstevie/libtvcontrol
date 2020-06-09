@@ -97,7 +97,13 @@ struct tvcontrol {
 
 typedef struct tvcontrol tvcontrol_t;
 
-extern tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice);
-extern tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice);
+#ifdef __cplusplus
+extern "C" {
+#endif
+tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice);
+tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* libtvcontrol_h */
