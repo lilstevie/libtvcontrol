@@ -12,7 +12,7 @@
 ##  Use of this file is governed
 ##  by the license agreement included in the file
 ##
-##     <install>/license/license.txt
+##     <install>/LICENSE_CYPRESS
 ##
 ##  where <install> is the Cypress software
 ##  installation root directory path.
