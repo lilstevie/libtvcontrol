@@ -60,6 +60,7 @@ void getFWVer(tvcontrol_t *tvcDevice){
 tvcErr_t setEnterDFUMode(tvcontrol_t *tvcDevice, tvcUSBMode_t mode) {
 
     CY_RETURN_STATUS cyStatus;
+    uint8_t val;
     
     if(!tvcDevice->isDevDetected)
         return E_NO_DEVICE;
@@ -68,7 +69,8 @@ tvcErr_t setEnterDFUMode(tvcontrol_t *tvcDevice, tvcUSBMode_t mode) {
     if(cyStatus != CY_SUCCESS)
         return E_GPIO_FAIL;
     
-    cyStatus = CyGetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, (uint8_t*)&tvcDevice->mode);
+    cyStatus = CyGetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, &val);
+    tvcDevice->mode = val;
     if(cyStatus != CY_SUCCESS || mode != tvcDevice->mode)
         return E_GPIO_FAIL;
     
@@ -88,7 +90,7 @@ tvcErr_t rebootDevice(tvcontrol_t *tvcDevice){
 tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
     CY_DEVICE_INFO devInfo;
     CY_HANDLE dhandle;
-    tvcUSBMode_t currentMode;
+    uint8_t currentMode;
     int usbDevices = 0;
 
     if (*tvcDevice != NULL)
@@ -114,7 +116,7 @@ tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
             else if (strncmp((const char *)devInfo.productName, GIZMITE_ADVANCED_BOARD, sizeof(GIZMITE_ADVANCED_BOARD)) != 0) {
                 CyClose(dhandle);
                 continue;
-            } else if (CY_SUCCESS != CyGetGpioValue(dhandle, 1, (uint8_t *)&currentMode)) {
+            } else if (CY_SUCCESS != CyGetGpioValue(dhandle, 1, &currentMode)) {
                 CyClose(dhandle);
                 return E_GPIO_FAIL;
             } else if ((*tvcDevice = (tvcontrol_t *)calloc(1, sizeof(tvcontrol_t))) == NULL) {
