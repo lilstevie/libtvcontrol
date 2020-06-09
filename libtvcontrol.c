@@ -57,7 +57,7 @@ void getFWVer(tvcontrol_t *tvcDevice){
     
 }
 
-tvcErr_t setEnterDFUMode(tvcontrol_t *tvcDevice, tvcUSBMode_t mode) {
+tvcErr_t setUSBMode(tvcontrol_t *tvcDevice, tvcUSBMode_t mode) {
 
     CY_RETURN_STATUS cyStatus;
     uint8_t val;
@@ -77,9 +77,9 @@ tvcErr_t setEnterDFUMode(tvcontrol_t *tvcDevice, tvcUSBMode_t mode) {
     return E_OK;
 }
 
-tvcErr_t toggleEnterDFUMode(tvcontrol_t *tvcDevice) {
+tvcErr_t toggleUSBMode(tvcontrol_t *tvcDevice) {
     tvcUSBMode_t mode = (tvcDevice->mode == NORMAL_MODE) ? DFU_BOOT : NORMAL_MODE;
-    return setEnterDFUMode(tvcDevice, mode);
+    return setUSBMode(tvcDevice, mode);
 }
 
 tvcErr_t rebootDevice(tvcontrol_t *tvcDevice){
@@ -128,8 +128,8 @@ tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
             (*tvcDevice)->handle = dhandle;
             (*tvcDevice)->mode = currentMode;
             (*tvcDevice)->modeGPIO = 1;
-            (*tvcDevice)->setEnterDFUMode = (setEnterDFUMode_prototype)&setEnterDFUMode;
-            (*tvcDevice)->toggleEnterDFUMode = (toggleEnterDFUMode_prototype)&toggleEnterDFUMode;
+            (*tvcDevice)->setUSBMode = (setUSBMode_prototype)&setUSBMode;
+            (*tvcDevice)->toggleUSBMode = (toggleUSBMode_prototype)&toggleUSBMode;
             (*tvcDevice)->rebootDev = (rebootDevice_prototype)&rebootDevice;
             getFWVer(*tvcDevice);
 

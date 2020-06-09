@@ -35,8 +35,8 @@ typedef enum {
 } tvcUSBMode_t;
 
 struct tvcontrol;
-typedef tvcErr_t (*setEnterDFUMode_prototype)(struct tvcontrol *, tvcUSBMode_t);
-typedef tvcErr_t (*toggleEnterDFUMode_prototype)(struct tvcontrol *);
+typedef tvcErr_t (*setUSBMode_prototype)(struct tvcontrol *, tvcUSBMode_t);
+typedef tvcErr_t (*toggleUSBMode_prototype)(struct tvcontrol *);
 typedef tvcErr_t (*rebootDevice_prototype)(struct tvcontrol *);
 
 struct tvcontrol {
@@ -46,8 +46,8 @@ struct tvcontrol {
     tvcUSBMode_t mode;
     uint8_t modeGPIO;
     uint8_t resetGPIO;
-    setEnterDFUMode_prototype setEnterDFUMode;
-    toggleEnterDFUMode_prototype toggleEnterDFUMode;
+    setUSBMode_prototype setUSBMode;
+    toggleUSBMode_prototype toggleUSBMode;
     rebootDevice_prototype rebootDev;
 };
 

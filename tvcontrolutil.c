@@ -27,9 +27,7 @@ int main(){
     printf("Cypress FWVersion: %d.%d.%d.%d\n", device->fwVers.majorVersion, device->fwVers.minorVersion, device->fwVers.patchNumber, device->fwVers.buildNumber);
     printf("Current Device Mode: %s\n", device->mode == NORMAL_MODE ? "Normal Mode" : "DFU Boot");
     
-    err = device->toggleEnterDFUMode(device);
-    
-    if (err != E_OK)
+    if ((err = device->toggleUSBMode(device)) != E_OK)
         printf("Failed to change USB mode\n");
     else
         printf("New Device Mode: %s\n", device->mode == NORMAL_MODE ? "Normal Mode" : "DFU Boot");
