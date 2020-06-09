@@ -1,0 +1,10 @@
+*.o
+*.a
+*.lib
+*.la
+*.exe
+*.so
+*.dylib
+*.dll
+build/
+.DS_Store
