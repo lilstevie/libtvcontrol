@@ -83,19 +83,19 @@ tvcErr_t setUSBMode(tvcontrol_t *tvcDevice, tvcUSBMode_t mode) {
     CY_RETURN_STATUS cyStatus;
     uint8_t val;
     
-    if(E_NO_DEVICE == tvctrl_find_device(&tvcDevice))
-        return E_NO_DEVICE;
+    if(LIBTVCTL_E_NO_DEVICE == tvctrl_find_device(&tvcDevice))
+        return LIBTVCTL_E_NO_DEVICE;
     
     cyStatus = CySetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, (uint8_t)mode);
     if(cyStatus != CY_SUCCESS)
-        return E_GPIO_FAIL;
+        return LIBTVCTL_E_GPIO_FAIL;
     
     cyStatus = CyGetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, &val);
     tvcDevice->mode = val;
     if(cyStatus != CY_SUCCESS || mode != tvcDevice->mode)
-        return E_GPIO_FAIL;
+        return LIBTVCTL_E_GPIO_FAIL;
     
-    return E_OK;
+    return LIBTVCTL_E_OK;
 }
 
 tvcErr_t toggleUSBMode(tvcontrol_t *tvcDevice) {
@@ -105,7 +105,7 @@ tvcErr_t toggleUSBMode(tvcontrol_t *tvcDevice) {
 
 tvcErr_t rebootDevice(tvcontrol_t *tvcDevice){
     
-    return E_NOT_SUPPORTED;
+    return LIBTVCTL_E_NOT_SUPPORTED;
 }
 
 tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
@@ -115,11 +115,11 @@ tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
     int usbDevices = 0;
 
     if (*tvcDevice != NULL)
-        return E_INVALID_ARGUMENTS;
+        return LIBTVCTL_E_INVALID_ARGUMENTS;
     else if (CY_SUCCESS != CyLibraryInit())
-        return E_CYLIB_ERR;
+        return LIBTVCTL_E_CYLIB_ERR;
     else if (CY_SUCCESS != CyGetListofDevices((UINT8 *)&usbDevices))
-        return E_USB_ERR;
+        return LIBTVCTL_E_USB_ERR;
 
     for (int devNum = 0; devNum < usbDevices; devNum++) {
         if (CY_SUCCESS != CyGetDeviceInfo(devNum, &devInfo))
@@ -139,10 +139,10 @@ tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
                 continue;
             } else if (CY_SUCCESS != CyGetGpioValue(dhandle, 1, &currentMode)) {
                 CyClose(dhandle);
-                return E_GPIO_FAIL;
+                return LIBTVCTL_E_GPIO_FAIL;
             } else if ((*tvcDevice = (tvcontrol_t *)calloc(1, sizeof(tvcontrol_t))) == NULL) {
                 CyClose(dhandle);
-                return E_MALLOC_FAIL;
+                return LIBTVCTL_E_MALLOC_FAIL;
             }
             
             (*tvcDevice)->handle = dhandle;
@@ -153,11 +153,11 @@ tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
             (*tvcDevice)->rebootDev = (rebootDevice_prototype)&rebootDevice;
             getFWVer(*tvcDevice);
 
-            return E_OK;
+            return LIBTVCTL_E_OK;
         }
     }
 
-    return E_NO_DEVICE;
+    return LIBTVCTL_E_NO_DEVICE;
 }
 
 tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice) {
@@ -165,12 +165,12 @@ tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice) {
     CY_HANDLE handle;
     
     if (*tvcDevice == NULL)
-        return E_INVALID_ARGUMENTS;
+        return LIBTVCTL_E_INVALID_ARGUMENTS;
     
     handle = (*tvcDevice)->handle;
     free(*tvcDevice);
     *tvcDevice = NULL;
 
-    return (CY_SUCCESS != CyClose(handle)) ? E_CYLIB_ERR : E_OK;
+    return (CY_SUCCESS != CyClose(handle)) ? LIBTVCTL_E_CYLIB_ERR : LIBTVCTL_E_OK;
 }
 

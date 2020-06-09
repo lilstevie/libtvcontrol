@@ -53,8 +53,8 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     
-    if (E_OK != (err = tvctrl_find_device(&device)) || device == NULL) {
-        if (E_NO_DEVICE == err)
+    if (LIBTVCTL_E_OK != (err = tvctrl_find_device(&device)) || device == NULL) {
+        if (LIBTVCTL_E_NO_DEVICE == err)
             printf("No device found\n");
         else
             printf("library error\n");
@@ -79,10 +79,10 @@ int main(int argc, char *argv[]) {
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[1]);
             print_usage(*argv);
-            return E_INVALID_ARGUMENTS;
+            return LIBTVCTL_E_INVALID_ARGUMENTS;
         }
 
-        if (E_OK != err)
+        if (LIBTVCTL_E_OK != err)
             printf("Failed to change USB mode\n");
         else
             printf("New Device Mode: %s\n", device->mode == NORMAL_MODE ? "Normal Mode" : "DFU Boot");

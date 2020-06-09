@@ -63,15 +63,15 @@ typedef void* CY_HANDLE;
 /************************************************************************/
 
 typedef enum {
-    E_OK = 0,
-    E_MALLOC_FAIL,
-    E_CYLIB_ERR,
-    E_USB_ERR,
-    E_GPIO_FAIL,
-    E_DFU_TIMEOUT,
-    E_NOT_SUPPORTED,
-    E_NO_DEVICE,
-    E_INVALID_ARGUMENTS
+    LIBTVCTL_E_OK = 0,
+    LIBTVCTL_E_MALLOC_FAIL,
+    LIBTVCTL_E_CYLIB_ERR,
+    LIBTVCTL_E_USB_ERR,
+    LIBTVCTL_E_GPIO_FAIL,
+    LIBTVCTL_E_DFU_TIMEOUT,
+    LIBTVCTL_E_NOT_SUPPORTED,
+    LIBTVCTL_E_NO_DEVICE,
+    LIBTVCTL_E_INVALID_ARGUMENTS
 } tvcErr_t;
 
 typedef enum {
