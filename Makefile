@@ -41,7 +41,7 @@ STATIC_LIB_OBJ          := $(STATIC_LIB_TARGET:.a=.o)
 STATIC_LIB_SRC          := libtvcontrol.c
 
 SHARED_LIB_TARGET       := $(BUILD_DIR)/$(LIB_NAME).$(DYNAMIC_EXT)
-SHARED_LIB_FLAGS        := -shared -Wl
+SHARED_LIB_FLAGS        := -shared -Wl,-dead_strip -Wl,-exported_symbols_list,exported_syms.txt
 
 STATIC_TOOL_TARGET      := $(BUILD_DIR)/$(TOOL_NAME)_static$(EXEC_EXT)
 STATIC_TOOL_FLAGS       :=
@@ -66,7 +66,7 @@ $(STATIC_TOOL_TARGET): $(TOOL_SRC) | $(STATIC_LIB_TARGET)
 	$(CC) -o $@ $(FLAGS) $(STATIC_TOOL_FLAGS) $(STATIC_LIB_TARGET) $(TOOL_SRC)
 
 $(SHARED_LIB_TARGET): $(STATIC_LIB_TARGET)
-	$(CC) -o $@ $(FLAGS) $(SHARED_LIB_FLAGS) -Wl,-force_load,$<
+	$(CC) -o $@ $(FLAGS) $(SHARED_LIB_FLAGS) $<
 
 $(STATIC_LIB_OBJ): $(STATIC_LIB_SRC) | $(BUILD_DIR)
 	$(CC) -c -o $@ $(FLAGS) $<
