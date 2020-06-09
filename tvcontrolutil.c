@@ -24,7 +24,7 @@ int main(){
     }
 
     printf("Found Advanced Breakout\n");
-    printf("Cyprus FWVersion: %d.%d.%d.%d\n", device->fwVers.majorVersion, device->fwVers.minorVersion, device->fwVers.patchNumber, device->fwVers.buildNumber);
+    printf("Cypress FWVersion: %d.%d.%d.%d\n", device->fwVers.majorVersion, device->fwVers.minorVersion, device->fwVers.patchNumber, device->fwVers.buildNumber);
     printf("Current Device Mode: %s\n", device->mode == NORMAL_MODE ? "Normal Mode" : "DFU Boot");
     
     err = device->toggleEnterDFUMode(device);
