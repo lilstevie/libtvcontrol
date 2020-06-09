@@ -62,7 +62,7 @@ tvcErr_t setUSBMode(tvcontrol_t *tvcDevice, tvcUSBMode_t mode) {
     CY_RETURN_STATUS cyStatus;
     uint8_t val;
     
-    if(!tvcDevice->isDevDetected)
+    if(E_NO_DEVICE == tvctrl_find_device(&tvcDevice))
         return E_NO_DEVICE;
     
     cyStatus = CySetGpioValue(tvcDevice->handle, tvcDevice->modeGPIO, (uint8_t)mode);
@@ -124,7 +124,6 @@ tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
                 return E_MALLOC_FAIL;
             }
             
-            (*tvcDevice)->isDevDetected = true;
             (*tvcDevice)->handle = dhandle;
             (*tvcDevice)->mode = currentMode;
             (*tvcDevice)->modeGPIO = 1;

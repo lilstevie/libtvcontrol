@@ -9,7 +9,6 @@
 #define libtvcontrol_h
 
 #include <stdio.h>
-#include <stdbool.h>
 #include "CyUSBSerial.h"
 
 #define MFG_NAME "Gizmite Designs"
@@ -40,7 +39,6 @@ typedef tvcErr_t (*toggleUSBMode_prototype)(struct tvcontrol *);
 typedef tvcErr_t (*rebootDevice_prototype)(struct tvcontrol *);
 
 struct tvcontrol {
-    bool isDevDetected;
     CY_HANDLE handle;
     CY_FIRMWARE_VERSION fwVers;
     tvcUSBMode_t mode;
