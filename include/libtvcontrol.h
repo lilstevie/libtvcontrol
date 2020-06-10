@@ -31,24 +31,47 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdint.h>
-#include "CyUSBSerial.h"
 
 #define MFG_NAME "Gizmite Designs"
 #define GIZMITE_ADVANCED_BOARD "Apple TV Serial/DFU Control"
 
 #define ADVANCED_MODE_GPIO 1
 
+/************************************************************************/
+// Copied from CyUSBSerial.h to allow independability from including it.
+#ifndef _INCLUDED_CYUSBSERIAL_H_
+
+#ifndef UINT32
+    typedef unsigned int UINT32;
+#endif
+#ifndef UINT8
+    typedef unsigned char UINT8;
+#endif
+#ifndef UINT16
+    typedef unsigned short UINT16;
+#endif
+
+typedef struct _CY_FIRMWARE_VERSION {
+    UINT8 majorVersion;                 /*Major version of the Firmware*/
+    UINT8 minorVersion;                 /*Minor version of the Firmware*/
+    UINT16 patchNumber;                 /*Patch Number of the Firmware*/  
+    UINT32 buildNumber;                 /*Build Number of the Firmware*/
+} CY_FIRMWARE_VERSION, *PCY_FIRMWARE_VERSION;
+
+typedef void* CY_HANDLE;
+#endif
+/************************************************************************/
+
 typedef enum {
-    E_OK = 0,
-    E_MALLOC_FAIL,
-    E_CYLIB_ERR,
-    E_USB_ERR,
-    E_GPIO_FAIL,
-    E_DFU_TIMEOUT,
-    E_NOT_SUPPORTED,
-    E_NO_DEVICE,
-    E_INVALID_ARGUMENTS
+    LIBTVCTL_E_OK = 0,
+    LIBTVCTL_E_MALLOC_FAIL,
+    LIBTVCTL_E_CYLIB_ERR,
+    LIBTVCTL_E_USB_ERR,
+    LIBTVCTL_E_GPIO_FAIL,
+    LIBTVCTL_E_DFU_TIMEOUT,
+    LIBTVCTL_E_NOT_SUPPORTED,
+    LIBTVCTL_E_NO_DEVICE,
+    LIBTVCTL_E_INVALID_ARGUMENTS
 } tvcErr_t;
 
 typedef enum {
@@ -74,7 +97,13 @@ struct tvcontrol {
 
 typedef struct tvcontrol tvcontrol_t;
 
-extern tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice);
-extern tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice);
+#ifdef __cplusplus
+extern "C" {
+#endif
+tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice);
+tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* libtvcontrol_h */
