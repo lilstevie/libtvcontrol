@@ -31,6 +31,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #define MFG_NAME "Gizmite Designs"
 #define GIZMITE_ADVANCED_BOARD "Apple TV Serial/DFU Control"
