@@ -79,9 +79,11 @@ void getFWVer(tvcontrol_t *tvcDevice){
 }
 
 tvcErr_t setUSBMode(tvcontrol_t *tvcDevice, tvcUSBMode_t mode) {
-
     CY_RETURN_STATUS cyStatus;
     uint8_t val;
+
+    if (tvcDevice == NULL)
+        return LIBTVCTL_E_INVALID_ARGUMENTS;
     
     if(LIBTVCTL_E_NO_DEVICE == tvctrl_find_device(&tvcDevice))
         return LIBTVCTL_E_NO_DEVICE;
@@ -99,6 +101,9 @@ tvcErr_t setUSBMode(tvcontrol_t *tvcDevice, tvcUSBMode_t mode) {
 }
 
 tvcErr_t toggleUSBMode(tvcontrol_t *tvcDevice) {
+    if (tvcDevice == NULL)
+        return LIBTVCTL_E_INVALID_ARGUMENTS;
+
     tvcUSBMode_t mode = (tvcDevice->mode == NORMAL_MODE) ? DFU_BOOT : NORMAL_MODE;
     return setUSBMode(tvcDevice, mode);
 }
@@ -114,7 +119,7 @@ tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
     uint8_t currentMode;
     int usbDevices = 0;
 
-    if (*tvcDevice != NULL)
+    if (tvcDevice == NULL || *tvcDevice != NULL)
         return LIBTVCTL_E_INVALID_ARGUMENTS;
     else if (CY_SUCCESS != CyLibraryInit())
         return LIBTVCTL_E_CYLIB_ERR;
@@ -164,7 +169,7 @@ tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice) {
     
     CY_HANDLE handle;
     
-    if (*tvcDevice == NULL)
+    if (tvcDevice == NULL || *tvcDevice == NULL)
         return LIBTVCTL_E_INVALID_ARGUMENTS;
     
     handle = (*tvcDevice)->handle;
