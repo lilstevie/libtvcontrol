@@ -33,25 +33,33 @@ else ifeq ($(PLATFORM),Windows)
     EXEC_EXT            := .exe
 endif
 
-FLAGS                   := -O3 -arch $(ARCH) -L$(LIBS_DIR) -L$(BUILD_DIR) -I$(HEADERS_DIR)
+FLAGS                   := -Wall -fPIC -O3 -arch $(ARCH) -L$(LIBS_DIR) -L$(BUILD_DIR) -I$(HEADERS_DIR)
 
 STATIC_LIB_TARGET       := $(BUILD_DIR)/$(LIB_NAME).a
 STATIC_LIB_OBJ          := $(STATIC_LIB_TARGET:.a=.o)
-STATIC_LIB_SRC          := libtvcontrol.c
 
 SHARED_LIB_TARGET       := $(BUILD_DIR)/$(LIB_NAME).$(DYNAMIC_EXT)
-SHARED_LIB_FLAGS        := -shared -Wl,-install_name,@loader_path/$(shell basename $(SHARED_LIB_TARGET))
+SHARED_LIB_FLAGS        := -shared -lpthread
+
+LIB_SRC                 := libtvcontrol.c
+LIB_DEPS                := $(LIBS_DIR)/libcyusbserial.a
+
+ifeq ($(PLATFORM),Darwin)
+    SHARED_LIB_DEPS     := ${LIB_DEPS}
+else ifeq ($(PLATFORM),Linux)
+    SHARED_LIB_DEPS     := $(LIBS_DIR)/libcyusbserial_shared.a
+endif
 
 STATIC_TOOL_TARGET      := $(BUILD_DIR)/$(TOOL_NAME)_static$(EXEC_EXT)
 STATIC_TOOL_FLAGS       :=
 
 TOOL_TARGET             := $(BUILD_DIR)/$(TOOL_NAME)$(EXEC_EXT)
 TOOL_SRC                := tvcontrolutil.c
-TOOL_FLAGS              := -ltvcontrol
+TOOL_FLAGS              := -ltvcontrol -Wl,-rpath,'$$ORIGIN'
 
 ifeq ($(PLATFORM),Darwin)
     FRAMEWORKS          := -framework CoreFoundation -framework IOKit
-    SHARED_LIB_FLAGS    += $(FRAMEWORKS)
+    SHARED_LIB_FLAGS    += -Wl,-install_name,@loader_path/$(shell basename $(SHARED_LIB_TARGET)) $(FRAMEWORKS)
     STATIC_TOOL_FLAGS   += $(FRAMEWORKS)
 endif
 
@@ -62,18 +70,18 @@ $(TOOL_TARGET): $(TOOL_SRC) | $(SHARED_LIB_TARGET)
 	$(CC) -o $@ $(FLAGS) $(TOOL_FLAGS) $(TOOL_SRC)
 
 $(STATIC_TOOL_TARGET): $(TOOL_SRC) | $(STATIC_LIB_TARGET)
-	$(CC) -o $@ $(FLAGS) $(STATIC_TOOL_FLAGS) $(STATIC_LIB_TARGET) $(TOOL_SRC)
+	$(CC) -o $@ $(FLAGS) $(STATIC_TOOL_FLAGS) $(TOOL_SRC) $(STATIC_LIB_TARGET)
 
-$(SHARED_LIB_TARGET): $(STATIC_LIB_TARGET)
-	$(CC) -o $@ $(FLAGS) $(SHARED_LIB_FLAGS) -Wl,-force_load,$<
+$(SHARED_LIB_TARGET): $(LIB_SRC) $(SHARED_LIB_DEPS) | $(BUILD_DIR)
+	$(CC) -o $@ $(FLAGS) $(SHARED_LIB_FLAGS) $^
 
-$(STATIC_LIB_OBJ): $(STATIC_LIB_SRC) | $(BUILD_DIR)
+$(STATIC_LIB_OBJ): $(LIB_SRC) | $(BUILD_DIR)
 	$(CC) -c -o $@ $(FLAGS) $<
 
-$(STATIC_LIB_TARGET): $(LIBS_DIR)/libcyusbserial.a | $(STATIC_LIB_OBJ)
+$(STATIC_LIB_TARGET): $(LIB_DEPS) | $(STATIC_LIB_OBJ)
 	cp $< $@_
 	ar -rcs $@_ $(STATIC_LIB_OBJ)
-	mv $@{_,}
+	mv $@_ $@
 	rm -rf $(STATIC_LIB_OBJ)
 
 $(BUILD_DIR):
