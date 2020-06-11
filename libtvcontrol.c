@@ -49,7 +49,7 @@ bool isValidDevice (int devNum) {
     unsigned char sig[6];
     CY_RETURN_STATUS rStatus;
     
-    rStatus = CyOpen(devNum, intNum, &handle)
+    rStatus = CyOpen(devNum, intNum, &handle);
 
     if(rStatus == CY_SUCCESS){
         rStatus = CyGetSignature(handle, sig);
