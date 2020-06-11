@@ -9,10 +9,10 @@ on:
 jobs:
   build:
 
-    runs-on: ${{build.os}}
+    runs-on: ${{matrix.os}}
 
     strategy:
-      build:
+      matrix:
         os: [ubuntu-latest, macos-latest]
 
     steps:
