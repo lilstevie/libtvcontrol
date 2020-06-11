@@ -9,7 +9,11 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{build.os}}
+
+    strategy:
+      build:
+        os: [ubuntu-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v2
