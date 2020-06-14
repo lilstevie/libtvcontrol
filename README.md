@@ -14,8 +14,8 @@ libtvcontrol and tvcontrolutil are licensed under the [MIT license](https://choo
 
 Current platform and architecture combinations supported:
 
- - macOS x86_64
- - Linux x86_64
+ - macOS x86-64
+ - Linux x86-64
 
 Coming soon:
 
@@ -25,7 +25,7 @@ Coming soon:
 
 TODO:
 
- - Windows x86_64
+ - Windows x86-64
 
 ## Usage
 
