@@ -176,6 +176,9 @@ tvcErr_t tvctrl_release_device(tvcontrol_t **tvcDevice) {
     free(*tvcDevice);
     *tvcDevice = NULL;
 
-    return (CY_SUCCESS != CyClose(handle)) ? LIBTVCTL_E_CYLIB_ERR : LIBTVCTL_E_OK;
+    if(CY_SUCCESS != CyClose(handle))
+        return LIBTVCTL_E_CYLIB_ERR;
+
+    return (CY_SUCCESS != CyLibraryExit()) ? LIBTVCTL_E_CYLIB_ERR : LIBTVCTL_E_OK;
 }
 
