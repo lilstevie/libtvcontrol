@@ -20,10 +20,11 @@ EXEC_EXT                :=
 
 ifeq ($(PLATFORM),Darwin)
     CC                  := xcrun clang
+    ARCH_EXTRA          := -arch $(ARCH)
     LIBS_DIR            := $(LIBS_DIR)/darwin
     DYNAMIC_EXT         := dylib
 else ifeq ($(PLATFORM),Linux)
-    CC                  := clang
+    CC                  ?= clang
     LIBS_DIR            := $(LIBS_DIR)/linux/$(ARCH)
     DYNAMIC_EXT         := so
 else ifeq ($(PLATFORM),Windows)
@@ -33,7 +34,7 @@ else ifeq ($(PLATFORM),Windows)
     EXEC_EXT            := .exe
 endif
 
-FLAGS                   := -Wall -fPIC -O3 -arch $(ARCH) -L$(LIBS_DIR) -L$(BUILD_DIR) -I$(HEADERS_DIR)
+FLAGS                   := -Wall -fPIC -O3 $(ARCH_EXTRA) -L$(LIBS_DIR) -L$(BUILD_DIR) -I$(HEADERS_DIR)
 
 STATIC_LIB_TARGET       := $(BUILD_DIR)/$(LIB_NAME).a
 STATIC_LIB_OBJ          := $(STATIC_LIB_TARGET:.a=.o)
@@ -58,6 +59,7 @@ ifeq ($(PLATFORM),Darwin)
 else ifeq ($(PLATFORM),Linux)
     LIBRARIES           := -lpthread
     SHARED_LIB_FLAGS    += $(LIBRARIES)
+    SHARED_TOOL_FLAGS   += $(LIBRARIES)
     STATIC_TOOL_FLAGS   += $(LIBRARIES)
 endif
 
@@ -65,10 +67,10 @@ endif
 all: $(TOOL_TARGET) $(STATIC_TOOL_TARGET)
 
 $(TOOL_TARGET): $(TOOL_SRC) | $(SHARED_LIB_TARGET)
-	$(CC) -o $@ $(FLAGS) $(TOOL_FLAGS) $(TOOL_SRC)
+	$(CC) -o $@ $(TOOL_SRC) $(FLAGS) $(TOOL_FLAGS) $(SHARED_TOOL_FLAGS)
 
 $(STATIC_TOOL_TARGET): $(TOOL_SRC) | $(STATIC_LIB_TARGET)
-	$(CC) -o $@ $(FLAGS) $(STATIC_TOOL_FLAGS) $(TOOL_SRC) $(STATIC_LIB_TARGET)
+	$(CC) -o $@ $(TOOL_SRC) $(FLAGS) $(STATIC_LIB_TARGET) $(STATIC_TOOL_FLAGS)
 
 $(SHARED_LIB_TARGET): $(LIB_SRC) $(LIB_DEPS) | $(BUILD_DIR)
 	$(CC) -o $@ $(FLAGS) $(SHARED_LIB_FLAGS) $^
