@@ -7,7 +7,7 @@ ifndef $(PLATFORM)
 endif
 
 ifndef $(ARCH)
-    ARCH                := x86_64
+    ARCH                := $(shell uname -m)
 endif
 
 LIB_NAME                := libtvcontrol
@@ -39,16 +39,10 @@ STATIC_LIB_TARGET       := $(BUILD_DIR)/$(LIB_NAME).a
 STATIC_LIB_OBJ          := $(STATIC_LIB_TARGET:.a=.o)
 
 SHARED_LIB_TARGET       := $(BUILD_DIR)/$(LIB_NAME).$(DYNAMIC_EXT)
-SHARED_LIB_FLAGS        := -shared -lpthread
+SHARED_LIB_FLAGS        := -shared
 
 LIB_SRC                 := libtvcontrol.c
 LIB_DEPS                := $(LIBS_DIR)/libcyusbserial.a
-
-ifeq ($(PLATFORM),Darwin)
-    SHARED_LIB_DEPS     := ${LIB_DEPS}
-else ifeq ($(PLATFORM),Linux)
-    SHARED_LIB_DEPS     := $(LIBS_DIR)/libcyusbserial_shared.a
-endif
 
 STATIC_TOOL_TARGET      := $(BUILD_DIR)/$(TOOL_NAME)_static$(EXEC_EXT)
 STATIC_TOOL_FLAGS       :=
@@ -61,6 +55,10 @@ ifeq ($(PLATFORM),Darwin)
     FRAMEWORKS          := -framework CoreFoundation -framework IOKit
     SHARED_LIB_FLAGS    += -Wl,-install_name,@loader_path/$(shell basename $(SHARED_LIB_TARGET)) $(FRAMEWORKS)
     STATIC_TOOL_FLAGS   += $(FRAMEWORKS)
+else ifeq ($(PLATFORM),Linux)
+    LIBRARIES           := -lpthread
+    SHARED_LIB_FLAGS    += $(LIBRARIES)
+    STATIC_TOOL_FLAGS   += $(LIBRARIES)
 endif
 
 .PHONEY: all clean
@@ -72,7 +70,7 @@ $(TOOL_TARGET): $(TOOL_SRC) | $(SHARED_LIB_TARGET)
 $(STATIC_TOOL_TARGET): $(TOOL_SRC) | $(STATIC_LIB_TARGET)
 	$(CC) -o $@ $(FLAGS) $(STATIC_TOOL_FLAGS) $(TOOL_SRC) $(STATIC_LIB_TARGET)
 
-$(SHARED_LIB_TARGET): $(LIB_SRC) $(SHARED_LIB_DEPS) | $(BUILD_DIR)
+$(SHARED_LIB_TARGET): $(LIB_SRC) $(LIB_DEPS) | $(BUILD_DIR)
 	$(CC) -o $@ $(FLAGS) $(SHARED_LIB_FLAGS) $^
 
 $(STATIC_LIB_OBJ): $(LIB_SRC) | $(BUILD_DIR)
