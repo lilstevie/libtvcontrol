@@ -8,8 +8,6 @@ libtvcontrol and tvcontrolutil are licensed under the [MIT license](https://choo
 
 `libcyusbserial.a` is licensed under the [GNU Lesser General Public License, version 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html), also included in the `LICENSE_CYPRESS` file. The static object compiled from the source supplied by Cypress in [USB-Serial Software Development Kit](https://www.cypress.com/documentation/software-and-drivers/usb-serial-software-development-kit) and includes both libcyusbserial and libusb-1.0.9 sources from the Cypress archive. 
 
-`libcyusbserial_static.a` also includes musl libc which is licensed under the [MIT license](https://choosealicense.com/licenses/mit/), also included in the `LICENSE` file.
-
 ## Supported Platforms
 
 Current platform and architecture combinations supported:
