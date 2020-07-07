@@ -7,8 +7,14 @@ ifndef $(PLATFORM)
 endif
 
 ifndef $(ARCH)
-    ARCH                := $(shell uname -m)
+    ARCH                ?= $(shell uname -m)
 endif
+
+ifndef $(PREFIX)
+    PREFIX              ?= /usr/local
+endif
+
+CFLAGS                  ?= -Wall -fPIC -O3
 
 LIB_NAME                := libtvcontrol
 TOOL_NAME               := tvcontrolutil
@@ -34,7 +40,7 @@ else ifeq ($(PLATFORM),Windows)
     EXEC_EXT            := .exe
 endif
 
-FLAGS                   := -Wall -fPIC -O3 $(ARCH_EXTRA) -L$(LIBS_DIR) -L$(BUILD_DIR) -I$(HEADERS_DIR)
+FLAGS                   := $(CFLAGS) $(ARCH_EXTRA) -L$(LIBS_DIR) -L$(BUILD_DIR) -I$(HEADERS_DIR)
 
 STATIC_LIB_TARGET       := $(BUILD_DIR)/$(LIB_NAME).a
 STATIC_LIB_OBJ          := $(STATIC_LIB_TARGET:.a=.o)
@@ -60,7 +66,8 @@ else ifeq ($(PLATFORM),Linux)
     LIBRARIES           := -lpthread
     SHARED_LIB_FLAGS    += $(LIBRARIES)
     SHARED_TOOL_FLAGS   += $(LIBRARIES)
-    STATIC_TOOL_FLAGS   += $(LIBRARIES)
+    LIB_DEPS            += $(LIBS_DIR)/libusb-1.0.a $(LIBS_DIR)/libudev.a
+    STATIC_TOOL_FLAGS   += $(LIBRARIES) $(LIBS_DIR)/libusb-1.0.a $(LIBS_DIR)/libudev.a
 endif
 
 .PHONEY: all clean
@@ -86,6 +93,18 @@ $(STATIC_LIB_TARGET): $(LIB_DEPS) | $(STATIC_LIB_OBJ)
 
 $(BUILD_DIR):
 	mkdir -p $@
+
+install: install-tool install-lib
+
+install-tool: $(TOOL_TARGET) $(STATIC_TOOL_TARGET)
+	mkdir -p $(PREFIX)/bin
+	install -m 0755 $(TOOL_TARGET) $(PREFIX)/bin/
+	install -m 0755 $(STATIC_TOOL_TARGET) $(PREFIX)/bin/
+
+install-lib: $(STATIC_LIB_TARGET) $(SHARED_LIB_TARGET)
+	mkdir -p $(PREFIX)/lib
+	install -m 0644 $(STATIC_LIB_TARGET) $(PREFIX)/lib/
+	install -m 0755 $(SHARED_LIB_TARGET) $(PREFIX)/lib/
 
 clean:
 	rm -rf $(BUILD_DIR)
