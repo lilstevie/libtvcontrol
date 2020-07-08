@@ -1,0 +1,4 @@
+# Handle AppleTV advanced breakout - for use with libtvcontrol
+
+# Change group and permissions of AppleTV advanced breakout, and unbind cytherm kernel driver
+ACTION=="add", SUBSYSTEM=="usb", ATTR{manufacturer}=="Gizmite Designs", ATTR{product}=="Apple TV Serial/DFU Control", OWNER="root", GROUP="@usergroup@", MODE="0660", RUN+="/bin/sh -c 'for I in /sys/bus/usb/drivers/cytherm/$kernel*; do echo `basename $I` > /sys/bus/usb/drivers/cytherm/unbind ;  done'"

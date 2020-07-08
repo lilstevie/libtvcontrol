@@ -132,24 +132,6 @@ tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
     else if (CY_SUCCESS != CyGetListofDevices((UINT8 *)&usbDevices))
         return LIBTVCTL_E_USB_ERR;
 
-#ifdef __linux__
-    /* we have to unbind devices from the 'cytherm' driver, otherwise opening the device will fail */
-    DIR* dir = opendir("/sys/bus/usb/drivers/cytherm");
-    if (dir) {
-        struct dirent* ep;
-        while ((ep = readdir(dir))) {
-            if (isdigit(ep->d_name[0])) {
-                FILE* f = fopen("/sys/bus/usb/drivers/cytherm/unbind", "w");
-                if (f) {
-                    fprintf(f, "%s\n", ep->d_name);
-                    fclose(f);
-                }
-            }
-        }
-        closedir(dir);
-    }
-#endif
-
     for (int devNum = 0; devNum < usbDevices; devNum++) {
         if (CY_SUCCESS != CyGetDeviceInfo(devNum, &devInfo))
             continue;
