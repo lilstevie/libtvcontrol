@@ -52,6 +52,7 @@ STATIC_LIB_OBJ          := $(STATIC_LIB_TARGET:.a=.o)
 
 SHARED_LIB_TARGET       := $(BUILD_DIR)/$(LIB_NAME).$(DYNAMIC_EXT)
 SHARED_LIB_FLAGS        := -shared
+STATIC_FLAGS            := -DSTATIC_BUILD
 
 LIB_SRC                 := libtvcontrol.c
 LIB_DEPS                := $(LIBS_DIR)/libcyusbserial.a
@@ -90,7 +91,7 @@ $(SHARED_LIB_TARGET): $(LIB_SRC) $(LIB_DEPS) | $(BUILD_DIR)
 	$(CC) -o $@ $(FLAGS) $(SHARED_LIB_FLAGS) $^
 
 $(STATIC_LIB_OBJ): $(LIB_SRC) | $(BUILD_DIR)
-	$(CC) -c -o $@ $(FLAGS) $<
+	$(CC) -c -o $@ $(STATIC_FLAGS) $(FLAGS) $<
 
 $(STATIC_LIB_TARGET): $(LIB_DEPS) | $(STATIC_LIB_OBJ)
 	cp $< $@_

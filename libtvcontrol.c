@@ -26,6 +26,7 @@
  *
  */
 
+#define _GNU_SOURCE
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -131,6 +132,44 @@ tvcErr_t tvctrl_find_device(tvcontrol_t **tvcDevice) {
         return LIBTVCTL_E_CYLIB_ERR;
     else if (CY_SUCCESS != CyGetListofDevices((UINT8 *)&usbDevices))
         return LIBTVCTL_E_USB_ERR;
+
+#ifdef STATIC_BUILD
+#ifdef __linux__
+    /* we have to unbind devices from the 'cytherm' driver, otherwise opening the device will fail */
+    DIR* dir = opendir("/sys/bus/usb/drivers/cytherm");
+    if (dir) {
+        struct dirent* ep;
+        while ((ep = readdir(dir))) {
+            if (isdigit(ep->d_name[0])) {
+                char* colon = strchr(ep->d_name, ':');
+                if (!colon) {
+                    continue;
+                }
+                char devpath[256];
+                char* p = stpcpy(devpath, "/sys/bus/usb/devices/");
+                p = stpncpy(p, ep->d_name, colon - &ep->d_name[0]);
+                p = stpcpy(p, "/product");
+                FILE* f = fopen(devpath, "r");
+                if (f) {
+                    /* match the product name */
+                    char buf[64];
+                    int r = fread(buf, 1, sizeof(buf)-1, f);
+                    buf[r] = '\0';
+                    fclose(f);
+                    if (strncmp(buf, GIZMITE_ADVANCED_BOARD, sizeof(GIZMITE_ADVANCED_BOARD)-1) == 0) {
+                        f = fopen("/sys/bus/usb/drivers/cytherm/unbind", "w");
+                        if (f) {
+                            fprintf(f, "%s\n", ep->d_name);
+                            fclose(f);
+                        }
+                    }
+                }
+            }
+        }
+        closedir(dir);
+    }
+#endif
+#endif
 
     for (int devNum = 0; devNum < usbDevices; devNum++) {
         if (CY_SUCCESS != CyGetDeviceInfo(devNum, &devInfo))
